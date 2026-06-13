@@ -21,7 +21,6 @@ Credits:
 
 	Demo Images:
 		Unsplash (unsplash.com)
-		フリー素材ぱくたそ (https://www.pakutaso.com)
 
 	Icons:
 		Font Awesome (fontawesome.io)
