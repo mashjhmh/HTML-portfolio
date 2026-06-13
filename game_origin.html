@@ -1,0 +1,181 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <style>
+    body { margin: 0; background-color: #111; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let ballX = canvas.width / 2;
+    let ballY = canvas.height * 0.7; 
+    const ballRadius = 15;
+    let ballVx = 0; 
+    let ballVy = 0; 
+    const friction = 0.98; 
+
+    const holeX = canvas.width / 2;
+    const holeY = canvas.height * 0.2;
+    const holeRadius = 25;
+    let isGameOver = false;
+
+    let isDragging = false;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchCurrentX = 0;
+    let touchCurrentY = 0;
+
+    function update() {
+        ctx.fillStyle = "#111";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.beginPath();
+        ctx.arc(holeX, holeY, holeRadius, 0, Math.PI * 2);
+        ctx.fillStyle = "#000";
+        ctx.fill();
+        ctx.strokeStyle = "#4CAF50";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.closePath();
+
+        if (!isGameOver) {
+            ballX += ballVx;
+            ballY += ballVy;
+
+            const bounce = -0.8;
+            if (ballX + ballRadius > canvas.width) {
+                ballX = canvas.width - ballRadius;
+                ballVx *= bounce;
+            } else if (ballX - ballRadius < 0) {
+                ballX = ballRadius;
+                ballVx *= bounce;
+            }
+
+            if (ballY + ballRadius > canvas.height) {
+                ballY = canvas.height - ballRadius;
+                ballVy *= bounce;
+            } else if (ballY - ballRadius < 0) {
+                ballY = ballRadius;
+                ballVy *= bounce;
+            }
+
+            ballVx *= friction;
+            ballVy *= friction;
+
+            if (Math.abs(ballVx) < 0.05) ballVx = 0;
+            if (Math.abs(ballVy) < 0.05) ballVy = 0;
+
+            const distX = ballX - holeX;
+            const distY = ballY - holeY;
+            const distance = Math.sqrt(distX * distX + distY * distY);
+
+            if (Math.abs(ballVx) + Math.abs(ballVy) <= 5) {
+                if (distance < holeRadius) {
+                   isGameOver = true;
+                    ballVx = 0;
+                    ballVy = 0;
+                    ballX = holeX;
+                    ballY = holeY;
+                }
+            }
+        }
+
+        if (isDragging && !isGameOver) {
+            const dragX = touchCurrentX - touchStartX;
+            const dragY = touchCurrentY - touchStartY;
+            const targetX = ballX - dragX * 1.5;
+            const targetY = ballY - dragY * 1.5;
+
+            ctx.beginPath();
+            ctx.moveTo(ballX, ballY);
+            ctx.lineTo(targetX, targetY);
+            ctx.strokeStyle = "rgba(255, 68, 68, 0.8)";
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        if (!isGameOver) {
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = "#FFF";
+            ctx.fill();
+            ctx.closePath();
+        } else {
+            ctx.fillStyle = "#4CAF50";
+            ctx.font = "bold 32px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("STAGE CLEAR", canvas.width / 2, canvas.height / 2);
+            
+            ctx.font = "18px sans-serif";
+            ctx.fillText("画面をタップしてretry", canvas.width / 2, canvas.height / 2 + 40);
+        }
+
+        requestAnimationFrame(update);
+    }
+
+    // タッチイベントの追加
+    canvas.addEventListener("mousedown", function(e) {
+        if (isGameOver) {
+            ballX = canvas.width / 2;
+            ballY = canvas.height * 0.7;
+            ballVx = 0; ballVy = 0;
+            isGameOver = false;
+            return;
+        }
+        if (ballVx !== 0 || ballVy !== 0) return;
+        isDragging = true;
+        touchStartX = e.clientX; touchStartY = e.clientY;
+        touchCurrentX = e.clientX; touchCurrentY = e.clientY;
+    });
+    canvas.addEventListener("mousemove", function(e) {
+        if (!isDragging) return;
+        touchCurrentX = e.clientX; touchCurrentY = e.clientY;
+    });
+    canvas.addEventListener("mouseup", function() {
+        if (!isDragging) return;
+        isDragging = false;
+        const dragX = touchCurrentX - touchStartX;
+        const dragY = touchCurrentY - touchStartY;
+        ballVx = -dragX * 0.15; ballVy = -dragY * 0.15;
+    });
+
+    // スマホ用のタッチイベント
+    canvas.addEventListener("touchstart", function(e) {
+        if (isGameOver) {
+            ballX = canvas.width / 2; ballY = canvas.height * 0.7;
+            ballVx = 0; ballVy = 0; isGameOver = false; return;
+        }
+        if (ballVx !== 0 || ballVy !== 0) return;
+        const touch = e.touches[0];
+        isDragging = true;
+        touchStartX = touch.clientX; touchStartY = touch.clientY;
+        touchCurrentX = touch.clientX; touchCurrentY = touch.clientY;
+    });
+    canvas.addEventListener("touchmove", function(e) {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        touchCurrentX = touch.clientX; touchCurrentY = touch.clientY;
+    });
+    canvas.addEventListener("touchend", function(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        const dragX = touchCurrentX - touchStartX;
+        const dragY = touchCurrentY - touchStartY;
+        ballVx = -dragX * 0.15; ballVy = -dragY * 0.15;
+    });
+
+    update();
+  </script>
+</body>
+</html>
