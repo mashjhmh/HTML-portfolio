@@ -175,6 +175,12 @@ input, select, textarea {
 		letter-spacing: -0.035em;
 	}
 
+	.topic {
+		font-size: 1.5em;
+		font-weight: normal;
+		height: 0;
+	}
+
 		h1 a {
 			color: inherit;
 		}
