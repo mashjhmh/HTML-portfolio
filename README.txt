@@ -21,6 +21,7 @@ Credits:
 
 	Demo Images:
 		Unsplash (unsplash.com)
+		フリー素材ぱくたそ (https://www.pakutaso.com)
 
 	Icons:
 		Font Awesome (fontawesome.io)
@@ -28,3 +29,5 @@ Credits:
 	Other:
 		jQuery (jquery.com)
 		Responsive Tools (github.com/ajlkn/responsive-tools)
+
+		
