@@ -2373,6 +2373,21 @@ input, select, textarea {
 			width: 100%;
 		}
 
+		.transparent {
+ 			 position: relative;
+		}
+
+		.transparent::before {
+			background: linear-gradient(to right, rgba(255, 255, 255, 0),rgb(255, 255, 255));
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 300px;
+		}
+
+
 			.image.main img {
 				width: 100%;
 			}
